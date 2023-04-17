@@ -1,0 +1,20 @@
+#!/bin/sh
+
+WIFI_IP_ADDRESS=`ipconfig getifaddr en0`
+WIRED_IP_ADDRESS=`ipconfig getifaddr en7`
+
+if [ "$WIRED_IP_ADDRESS" != "" ]; then
+    IP_ADDRESS="$WIRED_IP_ADDRESS"
+else
+    IP_ADDRESS="$WIFI_IP_ADDRESS"
+fi
+
+echo "Running Ubuntu on ${IP_ADDRESS}:0..."
+
+CONTAINER_ID=`docker ps -a -q -f name="^ubuntu$"`
+
+if [ "$CONTAINER_ID" == "" ]; then
+    docker run -it -e DISPLAY=${IP_ADDRESS}:0 -v $HOME:/root/Data --platform=linux/amd64 --name ubuntu ubuntu zsh
+else
+    docker start -i $CONTAINER_ID
+fi
